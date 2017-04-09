@@ -53,4 +53,3 @@ if (interactive()) {
 \seealso{
 \code{\link{feedbackWarning}}, \code{\link{feedbackDanger}}, \code{\link{feedbackSuccess}}
 }
-

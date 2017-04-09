@@ -47,18 +47,28 @@
 feedback <- function(inputId, condition, text = NULL, color = NULL, 
                      icon = NULL) {
   
-  # check that shinyjs and shinyFeedback are set up properly
+  # TDOD: check that shinyjs and shinyFeedback are set up properly
   
-  icon_out <- as.character(icon)
   
+  
+  # some argument checks
+  stopifnot(is.character(inputId))
+  stopifnot(is.logical(condition))
+  icon <- as.character(icon)
+  stopifnot(is.character(text) || is.null(text))
+  stopifnot(is.character(color) || is.null(color))
+  
+  # create unique feedbackId for each feedback
   feedbackId <- digest::digest(list(match.call()[[1]], 
                                     inputId,
                                     text,
                                     color,
                                     icon))
   
+  # get the session
   session <- shiny::getDefaultReactiveDomain()
-  # uses shinyjs
+
+  # call js function
   session$sendCustomMessage(
     type = "checkFeedback",
     message = list(
@@ -66,9 +76,7 @@ feedback <- function(inputId, condition, text = NULL, color = NULL,
       condition = condition,
       text = text,
       color = color,
-      # TODO: 
-      # 1. not working with Font Awesome icons for some reason; only Glyphicon
-      icon = icon_out,
+      icon = icon,
       feedbackId = feedbackId
     )
   )

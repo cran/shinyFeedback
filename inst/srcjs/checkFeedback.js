@@ -5,24 +5,24 @@
   // store all the feedbacks for a single inputId
   function Feedbacks() {
     // cache whether each feedback is shown
-    this.isShown = {},
-              
+    this.isShown = {};
+  }
+  // add method to Feedbacks prototype
+  (function() {
     this.add = function(feedbackId) {
-      if (this.isShown[feedbackId] === undefined) {
-         this.isShown[feedbackId] = false;
-      }
-    },
+      this.isShown[feedbackId] = false;
+    };
   
     this.toggle = function(feedbackId) {
       this.isShown[feedbackId] = !this.isShown[feedbackId];
-    },
+    };
     
     this.setAllFalse = function() {
       for (var fb in this.isShown) {
         this.isShown[fb] = false;
       }
-    }
-  }
+    };
+  }).call(Feedbacks.prototype);
   
   // return the element containing the shiny inputId
   function findInput(inputId) {
@@ -66,14 +66,14 @@
     }
     
     // if feedback should transition to shown
-    if (message.condition && !inp.isShown[message.feedbackId]) {
-
+    if (message.condition) {
+      
       // set all feedbacks besides feedback transitioning to isShown false
       inp.setAllFalse();
       removeFeedback();
       // change feedback isShown value to true
       inp.toggle(message.feedbackId);
-    
+      
       // display feedback
       if (message.color) {
         $eLabel.css("color", message.color);
@@ -81,7 +81,8 @@
       }
       
       if (message.text) {
-        $("<div id='" + message.inputId + "-text' class='col-xs-12'><p style='color: " + message.color +"; margin-top: 0px;'>"+ message.text +"</p></div><br id='" + message.inputId + "-spacing'/>").insertAfter($eInput);
+        $("<div id='" + message.inputId + "-text' class='col-xs-12'><p style='color: " + message.color +"; margin-top: 0px;'>"+ message.text +"</p>").insertAfter($eInput);
+        $eGroup.append("</div><br id='" + message.inputId + "-spacing'/>");
       }
       
       if (message.icon) {
@@ -113,49 +114,95 @@
     feedbackHandler(message, $inputDisplayed, $label, $formGroup);
   }
   
-  // selectize = FALSE
   function feedbackSelect(message) {
     var $input = findInput(message.inputId);
-    var $label = $input.parent().siblings("label");
-    var $formGroup = $input.parent();
+    
+    // could not find a better way to distinguish between if selectize = TRUE by only 
+    // looking at the input binding, so I am having to check the input class
+    if ($input.hasClass("selectized")) {
+      // selectized = TRUE function; the default
+      feedbackSelectize(message);
+    } else {
+      // selectized = FALSE Function
+      var $label = $input.parent().siblings("label");
+      var $formGroup = $input.parent();
+    
+      feedbackHandler(message, $input, $label, $formGroup);
+    }
+  }
+  
+  // dateInput
+  function feedbackDate(message) {
+    var $formGroup = findInput(message.inputId);
+    var $label = $formGroup.children("label");
+    var $input = $formGroup.children("input");
     
     feedbackHandler(message, $input, $label, $formGroup);
+  }
+  
+  // all shiny input bindings that are supported by shinyFeedback
+  var bindingNames = [
+    "shiny.selectInput",
+    "shiny.dateInput",
+    "shiny.sliderInput",
+    "shiny.numberInput",
+    "shiny.passwordInput",
+    "shiny.textareaInput",
+    "shiny.textInput"
+  ];
+  
+  function findInputBinding(id) {
+    var $el = $("#" + id);
+    if ($el.length === 0 || !$el.data("shinyInputBinding")) {
+      var msg = "shinyFeedback: Unable to find input binding for element with id " + id;
+      throw msg;
+    }
+    
+    return $el.data("shinyInputBinding");
+  }
+  
+  function checkInputSupported(inputBindingName) {
+    if ($.inArray(inputBindingName, bindingNames) === -1) {
+      var msg = "shinyFeedback: Input Binding " + inputBindingName + " is not supported by shinyFeedback";
+      throw msg;
+    }
+    console.log(inputBindingName);
+    return;
   }
                
   Shiny.addCustomMessageHandler(
     "checkFeedback",
     function(message) {
       
-      var $input = findInput(message.inputId);
-      var tag = $input.prop("tagName");
+      var myBindingName = findInputBinding(message.inputId).name;
+      //check that the input type is supported
+      checkInputSupported(myBindingName);
       
-      // create a property key = inputId and value = feedbacks associated with
-      // that feedback id
+      var inp = null;
       if (inputs[message.inputId] === undefined) {
-        inputs[message.inputId] = new Feedbacks();
+        // create an object holding all the feedbacks for the given inputId.
+        // this object will hold the isShown state of each feedback (true or false). 
+        // There can be multiple feedbacks associated with a single input.
+        inp = inputs[message.inputId] = new Feedbacks();
+        // add feedbackId to the store of feedbacks for the input
+        // and set the isShown property to false
+        inp.add(message.feedbackId);
+      } else {
+        inp = inputs[message.inputId];  
       }
-      var inp = inputs[message.inputId];
-      // add feedbackId to the store
-      inp.add(message.feedbackId);
+      
     
-      // Shiny inputs where the inputId is in an <input> html element 
-      if (tag === "INPUT") {
-        if ($input.hasClass("js-range-slider")) {
-        // function to deal with sliderInput
-        } else if ($input.attr("type") === "button") {
-        // function to deal with actionButtons
-        } else {
-        // numericInput, textInput, or passwordInput
-          feedbackDefault(message);
-        }
-      } else if (tag === "SELECT") {
-        if ($input.hasClass("selectized")) {
-          // selectized = TRUE function; the default
-          feedbackSelectize(message);
-        } else {
-          // selectized = FALSE Function
+      // call right function to insert / remove feedback message
+      // depending on the type of input binding
+      switch (myBindingName) {
+        case "shiny.dateInput":
+          feedbackDate(message);
+          break;
+        case "shiny.selectInput":
           feedbackSelect(message);
-        }
+          break;
+        default:
+          feedbackDefault(message);
       }
     }
   );

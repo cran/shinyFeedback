@@ -52,7 +52,6 @@ if (interactive()) {
 \seealso{
 \code{\link{feedback}}, \code{\link{feedbackDanger}}, \code{\link{feedbackSuccess}}
 
-Other feedback.wrappers: \code{\link{feedbackDanger}},
+Other feedback wrappers: \code{\link{feedbackDanger}},
   \code{\link{feedbackWarning}}
 }
-

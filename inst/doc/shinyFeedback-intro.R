@@ -11,7 +11,7 @@
 #    numericInput(
 #      "warningInput",
 #      "Warn if Negative",
-#      value = -5
+#      value = 0
 #    )
 #  )
 #  
@@ -25,6 +25,9 @@
 #  }
 #  
 #  shinyApp(ui, server)
+
+## ----eval = FALSE--------------------------------------------------------
+#  ?feedbackWarning
 
 ## ---- eval = FALSE-------------------------------------------------------
 #  ui <- fluidPage(
@@ -48,6 +51,37 @@
 #        inputId = "multiFeedbacks",
 #        condition = input$multiFeedbacks >= 2,
 #        text = "2+ is danger"
+#      )
+#    })
+#  }
+#  
+#  shinyApp(ui, server)
+
+## ----modal_eg, eval = FALSE----------------------------------------------
+#  ui <- fluidPage(
+#    useShinyFeedback(), # include shinyFeedback
+#    actionButton("show", "Show modal dialog")
+#  )
+#  
+#  server <- function(input, output) {
+#    observeEvent(input$show, {
+#        showModal(modalDialog(
+#          title = "Important message",
+#          passwordInput(
+#            "password",
+#            "Password"
+#          )
+#        ))
+#      })
+#  
+#  
+#    observe({
+#      input$show
+#  
+#      feedbackDanger(
+#        inputId = "password",
+#        condition = nchar(input$password) < 4,
+#        text = "Password must be >= 4 characters"
 #      )
 #    })
 #  }
