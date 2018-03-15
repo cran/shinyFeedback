@@ -3,9 +3,9 @@
 #' displays feedback next to Shiny input
 #' 
 #' @param inputId the Shiny input's \code{inputId} argument
-#' @param condition condition under which feeback is displayed
+#' @param condition condition under which feedback is displayed
 #' @param text text string to display below input
-#' @param color the color of the feeback
+#' @param color the color of the feedback
 #' @param icon a \code{shiny::icon} object
 #' 
 #' @import digest
@@ -60,10 +60,11 @@ feedback <- function(inputId, condition, text = NULL, color = NULL,
   
   # create unique feedbackId for each feedback
   feedbackId <- digest::digest(list(match.call()[[1]], 
-                                    inputId,
-                                    text,
-                                    color,
-                                    icon))
+                                    quote(inputId),
+                                    quote(condition),
+                                    quote(text),
+                                    quote(color),
+                                    quote(icon)))
   
   # get the session
   session <- shiny::getDefaultReactiveDomain()
