@@ -88,3 +88,79 @@
 #  
 #  shinyApp(ui, server)
 
+## ----snackbar_wrappers, eval = FALSE-------------------------------------
+#  ui <- fluidPage(
+#     useShinyFeedback(),
+#     br(),
+#  
+#     actionButton(
+#       "showSnackbarBtn",
+#       "Show Snackbar"
+#     ),
+#  
+#     snackbar(
+#       id = "mySnackbar",
+#       message = "You just did something!"
+#     )
+#  )
+#  
+#  server <- function(input, output) {
+#    observeEvent(input$showSnackbarBtn, {
+#      showSnackbar("mySnackbar")
+#    })
+#  }
+#  
+#  shinyApp(ui, server)
+
+## ----snackbar, eval = FALSE----------------------------------------------
+#  ui <- fluidPage(
+#     useShinyFeedback(),
+#     br(),
+#  
+#     actionButton(
+#       "showSuccessSnackbar",
+#       "Show Success Snack",
+#       class = "btn-success"
+#     ),
+#     actionButton(
+#       "showWarningSnackbar",
+#       "Show Warning Snack",
+#       class = "btn-warning"
+#     ),
+#     actionButton(
+#       "showDangerSnackbar",
+#       "Show Danger Snack",
+#       class = "btn-danger"
+#     ),
+#  
+#  
+#     snackbarSuccess(
+#       id = "successSnackbar",
+#       message = "You just did something successfully!"
+#     ),
+#     snackbarWarning(
+#       id = "warningSnackbar",
+#       message = "You just did something that might be bad?"
+#     ),
+#     snackbarDanger(
+#       id = "dangerSnackbar",
+#       message = "You just did something bad!"
+#     )
+#  )
+#  
+#  server <- function(input, output) {
+#    observeEvent(input$showSuccessSnackbar, {
+#      showSnackbar("successSnackbar")
+#    })
+#  
+#    observeEvent(input$showWarningSnackbar, {
+#      showSnackbar("warningSnackbar")
+#    })
+#  
+#    observeEvent(input$showDangerSnackbar, {
+#      showSnackbar("dangerSnackbar")
+#    })
+#  }
+#  
+#  shinyApp(ui, server)
+
