@@ -1,24 +1,12 @@
 # shinyFeedback
 
-[![Travis-CI Build Status](https://travis-ci.org/merlinoa/shinyFeedback.svg?branch=master)](https://travis-ci.org/merlinoa/shinyFeedback) [![CRAN](http://www.r-pkg.org/badges/version/shinyFeedback)](https://cran.r-project.org/package=shinyFeedback) [![Downloads](http://cranlogs.r-pkg.org/badges/shinyFeedback)](http://www.r-pkg.org/pkg/shinyFeedback) ![CRAN downloads](http://cranlogs.r-pkg.org/badges/grand-total/shinyFeedback)
+[![Travis-CI Build Status](https://travis-ci.org/merlinoa/shinyFeedback.svg?branch=master)](https://travis-ci.org/merlinoa/shinyFeedback) [![CRAN](http://www.r-pkg.org/badges/version/shinyFeedback)](https://cran.r-project.org/package=shinyFeedback) [![Downloads](https://cranlogs.r-pkg.org/badges/shinyFeedback)](https://www.r-pkg.org/pkg/shinyFeedback) ![CRAN downloads](https://cranlogs.r-pkg.org/badges/grand-total/shinyFeedback)
 
 R package for displaying user feedback along side Shiny inputs
 
-# Examples
+![](https://res.cloudinary.com/dxqnb8xjb/image/upload/v1588077144/Screen_Shot_2020-04-28_at_8.31.32_AM_kx4rn8.png)
 
-### Shiny Input Feedbacks
-
-- [Example App on GitHub](https://github.com/merlinoa/shinyFeedbackApp)
-
-- Screenshot of shiny inputs with shinyFeedback messages displayed
-
-![](inst/img/feedback-screenshot.png)
-
-### Snackbar feedback
-
-Show simple snackbar messages
-
-![](inst/img/snackbar_gif.gif)
+### [Live Shiny app using `shinyFeedback`](https://tychobra.shinyapps.io/shinyFeedbackExamples)
 
 # Getting Started
 
@@ -28,10 +16,10 @@ Show simple snackbar messages
 install.packages("shinyFeedback")
 ```
 
-### Or Install Dev Version from GitHub
+### Or install the development version from GitHub
 
 ```R
-devtools::install_github("merlinoa/shinyFeedback", build_vignettes = TRUE)
+remotes::install_github("merlinoa/shinyFeedback", build_vignettes = TRUE)
 ```
 ### Read Intro Vignette
 
@@ -41,11 +29,3 @@ library(shinyFeedback)
 # read intro vignette
 browseVignettes(package = "shinyFeedback")
 ```
-
-### Roadmap
-
-I would like to add support for more of the standard `shiny` input bindings and for several of the input bindings provided with the `shinyWidgets` package.
-
-### Issues
-
-If you use this package and have a problem please open a GitHub issue; I would be very interested to hear from you.  

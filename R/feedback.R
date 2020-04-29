@@ -1,80 +1,124 @@
 #' feedback
 #' 
-#' displays feedback next to Shiny input
+#' Show / hide feedback messages.
 #' 
-#' @param inputId the Shiny input's \code{inputId} argument
-#' @param condition condition under which feedback is displayed
-#' @param text text string to display below input
-#' @param color the color of the feedback
-#' @param icon a \code{shiny::icon} object
+#' @inheritParams showFeedback
+#' @param show Whether or not the feedback should be shown.  The `show` argument
+#' uses `shiny::isTruthy()` to evaluate its value to `TRUE` or `FALSE`.
 #' 
-#' @import digest
-#' @import shiny
+#' @importFrom shiny getDefaultReactiveDomain isTruthy
 #' 
-#' @seealso \code{\link{feedbackWarning}}, \code{\link{feedbackDanger}}, \code{\link{feedbackSuccess}}
+#' @seealso showFeedback hideFeedback
 #' 
 #' @export
 #' 
-#' @examples 
 #' 
-#' ## Only run examples in interacive R sessions
-#' if (interactive()) {
-#'   ui <- fluidPage(
-#'     useShinyFeedback(),
-#'     
-#'     numericInput(
-#'       "exampleInput",
-#'       "Show Feedback When < 0",
-#'       value = -5
-#'     )
-#'   )
-#'   
-#'   server <- function(input, output) {
-#'     observeEvent(input$exampleInput, {
-#'       feedback(
-#'         "exampleInput",
-#'         condition = input$exampleInput < 0,
-#'         text = "I am negative",
-#'         color = "#d9534f",
-#'         icon = shiny::icon("exclamation-sign", lib="glyphicon")
-#'       )
-#'     })
-#'   }
-#'   
-#'   shinyApp(ui, server)
-#' }
-#' 
-feedback <- function(inputId, condition, text = NULL, color = NULL, 
-                     icon = NULL) {
+feedback <- function(
+  inputId, 
+  show, 
+  text = NULL, 
+  color = NULL, 
+  icon = NULL,
+  session = shiny::getDefaultReactiveDomain()
+) {
   
   # some argument checks
   stopifnot(is.character(inputId))
-  stopifnot(is.logical(condition))
-  icon <- as.character(icon)
+  icon <- if (!is.null(icon)) as.character(icon)
   stopifnot(is.character(text) || is.null(text))
   stopifnot(is.character(color) || is.null(color))
   
-  # create unique feedbackId for each feedback
-  feedbackId <- digest::digest(list(match.call()[[1]], 
-                                    quote(inputId),
-                                    quote(condition),
-                                    quote(text),
-                                    quote(color),
-                                    quote(icon)))
+  ns <- session$ns
   
-  # get the session
-  session <- shiny::getDefaultReactiveDomain()
-
-  # call js function
   session$sendCustomMessage(
-    type = "checkFeedback",
+    'feedback',
     message = list(
-      inputId = inputId,
-      condition = condition,
-      text = text,
-      color = color,
-      icon = icon,
-      feedbackId = feedbackId
+      inputId = ns(inputId), 
+      show = shiny::isTruthy(show), 
+      text = text, 
+      color = color, 
+      icon = icon
     )
   )
 }
+
+#' feedbackWarning
+#'
+#' @rdname feedback
+#'
+#' @export
+#' 
+feedbackWarning <- function(
+  inputId, 
+  show, 
+  text = "Ye be warned",
+  color = "#F89406", 
+  icon = shiny::icon("warning-sign", lib="glyphicon"),
+  session = shiny::getDefaultReactiveDomain()
+) {
+  
+  feedback(
+    inputId, 
+    show, 
+    text,
+    color, 
+    icon,
+    session = shiny::getDefaultReactiveDomain()
+  )
+  
+}
+
+#' feedbackDanger
+#' 
+#'
+#' @rdname feedback
+#'
+#' @export
+#' 
+feedbackDanger <- function(
+  inputId, 
+  show, 
+  text = "Danger, turn back!",
+  color = "#d9534f", 
+  icon = shiny::icon("exclamation-sign", lib="glyphicon"),
+  session = shiny::getDefaultReactiveDomain()
+) {
+  
+  feedback(
+    inputId, 
+    show, 
+    text,
+    color, 
+    icon,
+    session = shiny::getDefaultReactiveDomain()
+  )
+  
+}
+
+#' feedbackSuccess
+#' 
+#'
+#' @rdname feedback
+#'
+#' @export
+#' 
+feedbackSuccess <- function(
+  inputId, 
+  show, 
+  text = NULL,
+  color = "#5cb85c", 
+  icon = shiny::icon("ok", lib="glyphicon"),
+  session = shiny::getDefaultReactiveDomain()
+) {
+  
+  feedback(
+    inputId, 
+    show, 
+    text,
+    color, 
+    icon,
+    session = shiny::getDefaultReactiveDomain()
+  )
+  
+}
+

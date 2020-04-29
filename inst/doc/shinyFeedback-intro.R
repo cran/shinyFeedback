@@ -1,165 +1,105 @@
-## ---- eval=FALSE---------------------------------------------------------
-#  useShinyFeedback()
-
-## ---- eval=FALSE---------------------------------------------------------
+## ---- eval=FALSE--------------------------------------------------------------
 #  library(shiny)
 #  library(shinyFeedback)
 #  
 #  ui <- fluidPage(
 #    useShinyFeedback(), # include shinyFeedback
 #  
-#    numericInput(
-#      "warningInput",
-#      "Warn if Negative",
-#      value = 0
+#    textInput(
+#      "myInput",
+#      "Warn if >3 characters",
+#      value = ""
 #    )
 #  )
 #  
-#  server <- function(input, output) {
+#  server <- function(input, output, session) {
+#    observeEvent(input$myInput, {
+#  
+#      if (nchar(input$myInput) > 3) {
+#        showFeedbackWarning(
+#          inputId = "myInput",
+#          text = "too many chars"
+#        )
+#      } else {
+#        hideFeedback("myInput")
+#      }
+#  
+#    })
+#  }
+#  
+#  shinyApp(ui, server)
+
+## ---- eval=FALSE--------------------------------------------------------------
+#  library(shiny)
+#  library(shinyFeedback)
+#  
+#  ui <- fluidPage(
+#    useShinyFeedback(), # include shinyFeedback
+#  
+#    selectInput(
+#      "dataset",
+#      "Dataset",
+#      choices = c(
+#        "airquality",
+#        "Unknown dataset"
+#      )
+#    ),
+#  
+#    tableOutput('data_table')
+#  )
+#  
+#  server <- function(input, output, session) {
+#  
+#    data_out <- reactive({
+#      req(input$dataset)
+#  
+#      dataset_exists <- exists(input$dataset, "package:datasets")
+#      feedbackWarning("dataset", !dataset_exists, "Unknown dataset")
+#      req(dataset_exists, cancelOutput = TRUE)
+#  
+#      get(input$dataset, "package:datasets")
+#    })
+#  
+#    output$data_table <- renderTable({
+#      head(data_out())
+#    })
+#  }
+#  
+#  shinyApp(ui, server)
+
+## ---- eval=FALSE--------------------------------------------------------------
+#  library(shiny)
+#  library(shinyFeedback)
+#  
+#  numberInput <- function(id) {
+#    ns <- NS(id)
+#    tagList(
+#      useShinyFeedback(),  # inclusion here is ideal; b/c inside module
+#      numericInput(
+#        ns("warningInput"),
+#        "Warn if Negative",
+#        value = 0
+#      )
+#    )
+#  }
+#  
+#  number <- function(input, output, session) {
 #    observeEvent(input$warningInput, {
-#      feedbackWarning(
-#        inputId = "warningInput",
-#        condition = input$warningInput < 0
-#      )
+#      req(input$warningInput)
+#      if (input$warningInput < 0) {
+#        showFeedbackWarning(inputId = "warningInput")
+#      } else {
+#        hideFeedback("warningInput")
+#      }
 #    })
 #  }
 #  
-#  shinyApp(ui, server)
-
-## ----eval = FALSE--------------------------------------------------------
-#  ?feedbackWarning
-
-## ---- eval = FALSE-------------------------------------------------------
 #  ui <- fluidPage(
-#    useShinyFeedback(), # include shinyFeedback
-#  
-#    numericInput(
-#      "multiFeedbacks",
-#      "1 is scary 2 is dangerous",
-#      value = 1
-#    )
+#    numberInput(id = "numberFoo")
 #  )
 #  
 #  server <- function(input, output) {
-#    observeEvent(input$multiFeedbacks, {
-#      feedbackWarning(
-#        inputId = "multiFeedbacks",
-#        condition = input$multiFeedbacks >= 1,
-#        text = "Warning 1 is a lonely number"
-#      )
-#      feedbackDanger(
-#        inputId = "multiFeedbacks",
-#        condition = input$multiFeedbacks >= 2,
-#        text = "2+ is danger"
-#      )
-#    })
-#  }
-#  
-#  shinyApp(ui, server)
-
-## ----modal_eg, eval = FALSE----------------------------------------------
-#  ui <- fluidPage(
-#    useShinyFeedback(), # include shinyFeedback
-#    actionButton("show", "Show modal dialog")
-#  )
-#  
-#  server <- function(input, output) {
-#    observeEvent(input$show, {
-#        showModal(modalDialog(
-#          title = "Important message",
-#          passwordInput(
-#            "password",
-#            "Password"
-#          )
-#        ))
-#      })
-#  
-#  
-#    observe({
-#      input$show
-#  
-#      feedbackDanger(
-#        inputId = "password",
-#        condition = nchar(input$password) < 4,
-#        text = "Password must be >= 4 characters"
-#      )
-#    })
-#  }
-#  
-#  shinyApp(ui, server)
-
-## ----snackbar_wrappers, eval = FALSE-------------------------------------
-#  ui <- fluidPage(
-#     useShinyFeedback(),
-#     br(),
-#  
-#     actionButton(
-#       "showSnackbarBtn",
-#       "Show Snackbar"
-#     ),
-#  
-#     snackbar(
-#       id = "mySnackbar",
-#       message = "You just did something!"
-#     )
-#  )
-#  
-#  server <- function(input, output) {
-#    observeEvent(input$showSnackbarBtn, {
-#      showSnackbar("mySnackbar")
-#    })
-#  }
-#  
-#  shinyApp(ui, server)
-
-## ----snackbar, eval = FALSE----------------------------------------------
-#  ui <- fluidPage(
-#     useShinyFeedback(),
-#     br(),
-#  
-#     actionButton(
-#       "showSuccessSnackbar",
-#       "Show Success Snack",
-#       class = "btn-success"
-#     ),
-#     actionButton(
-#       "showWarningSnackbar",
-#       "Show Warning Snack",
-#       class = "btn-warning"
-#     ),
-#     actionButton(
-#       "showDangerSnackbar",
-#       "Show Danger Snack",
-#       class = "btn-danger"
-#     ),
-#  
-#  
-#     snackbarSuccess(
-#       id = "successSnackbar",
-#       message = "You just did something successfully!"
-#     ),
-#     snackbarWarning(
-#       id = "warningSnackbar",
-#       message = "You just did something that might be bad?"
-#     ),
-#     snackbarDanger(
-#       id = "dangerSnackbar",
-#       message = "You just did something bad!"
-#     )
-#  )
-#  
-#  server <- function(input, output) {
-#    observeEvent(input$showSuccessSnackbar, {
-#      showSnackbar("successSnackbar")
-#    })
-#  
-#    observeEvent(input$showWarningSnackbar, {
-#      showSnackbar("warningSnackbar")
-#    })
-#  
-#    observeEvent(input$showDangerSnackbar, {
-#      showSnackbar("dangerSnackbar")
-#    })
+#    callModule(module = number, id = "numberFoo")
 #  }
 #  
 #  shinyApp(ui, server)

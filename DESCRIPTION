@@ -1,21 +1,26 @@
 Package: shinyFeedback
 Type: Package
-Title: Displays User Feedback Next to Shiny Inputs
-Version: 0.1.0
-Date: 2018-08-19
-Authors@R: person("Andy", "Merlino", email = "merlinoa88@gmail.com", role =
-    c("aut", "cre"))
-Description: Easily display user feedback next to Shiny inputs.  The feedback message is displayed when the feedback condition evaluates to TRUE.
-License: GPL-3
+Title: Display User Feedback in Shiny Apps
+Version: 0.2.0
+Date: 2020-04-28
+Authors@R: c(
+  person("Andy", "Merlino", email = "andy.merlino@tychobra.com", role = c("aut", "cre")),
+  person("Patrick", "Howard", email = "patrick.howard@tychobra.com", role = c("aut")))
+Description: Easily display user feedback in Shiny apps.
+License: MIT + file LICENSE
 LazyData: true
 Depends: R (>= 3.1.2)
-RoxygenNote: 6.1.0
+RoxygenNote: 7.1.0
+Encoding: UTF-8
 Suggests: knitr, rmarkdown
 VignetteBuilder: knitr
-Imports: shiny, digest
+Imports: htmltools, jsonlite, shiny
+URL: https://github.com/merlinoa/shinyFeedback
+BugReports: https://github.com/merlinoa/shinyFeedback/issues
 NeedsCompilation: no
-Packaged: 2018-08-20 01:29:09 UTC; andy
-Author: Andy Merlino [aut, cre]
-Maintainer: Andy Merlino <merlinoa88@gmail.com>
+Packaged: 2020-04-29 09:17:38 UTC; andy
+Author: Andy Merlino [aut, cre],
+  Patrick Howard [aut]
+Maintainer: Andy Merlino <andy.merlino@tychobra.com>
 Repository: CRAN
-Date/Publication: 2018-08-20 04:40:02 UTC
+Date/Publication: 2020-04-29 11:50:03 UTC

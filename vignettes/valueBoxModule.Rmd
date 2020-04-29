@@ -1,0 +1,65 @@
+---
+title: "valueBoxModule"
+author: "Andy Merlino"
+date: "`r Sys.Date()`"
+output: rmarkdown::html_vignette
+vignette: >
+  %\VignetteIndexEntry{valueBoxModule}
+  %\VignetteEngine{knitr::rmarkdown}
+  %\VignetteEncoding{UTF-8}
+---
+
+# valueBoxModule
+
+`valueboxModule` does not have anything to do with user feedback, but we use it frequently,
+so we decided to include it in `shinyFeedback`.
+
+`valueBoxModule` is similar to `shinydashboard::valueBox()` but it moves the value box UI from 
+the server to the UI.  Moving the value box UI to the UI has the benefit of only rendering the box once
+when the page is loaded rather than delaying the initial render until the initial value is calculated and rerendering the box each time that the value updates.  By moving the box content to the UI, the value box does not flash onto the screen when rendered.  
+
+`valueBoxModule` also allows for more custom styling of the box colors than `shinydashboard::valueBox()`.
+
+```{r, eval = FALSE}
+library(shiny)
+library(shinyFeedback)
+
+
+server <- function(input, output, session) {
+  
+  count <- reactiveVal(0)
+  
+  observeEvent(input$counter_button, {
+    count(count() + 1)
+  })
+  
+  callModule(
+    valueBoxModule,
+    "betterBox",
+    value = count
+  )
+}
+
+ui <- fluidPage(
+  fluidRow(
+    column(
+      12,
+      actionButton(
+        "counter_button",
+        "+1"
+      )
+    )
+  ),
+  br(),
+  fluidRow(
+    valueBoxModuleUI(
+      "betterBox",
+      "Counter",
+      icon = icon("rocket")
+    )
+  )
+)
+
+
+shinyApp(ui, server)
+```

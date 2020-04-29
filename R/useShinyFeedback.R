@@ -2,37 +2,53 @@
 #' 
 #' function to load js for using \code{shinyFeedback}
 #' 
-#' @import shiny
+#' @param feedback boolean: source in JS/CSS to use shinyFeedback functions (Default: TRUE)
+#' @param toastr boolean: source in JS/CSS to use showToast functions (Default: TRUE)
+#'
+#' @importFrom htmltools tagList
+#' 
+#' @section Example:
+#' \preformatted{
+#'   ui <- shinyUI(fluidPage(
+#'     useShinyFeedback(
+#'       feedback = TRUE,
+#'       toastr = TRUE
+#'     ),
+#'     pageWithSidebar(
+#'       headerPanel("Header"),
+#'       sidebarPanel(
+#'         ...
+#'       ),
+#'       mainPanel(
+#'         ...
+#'       )
+#'     )
+#'   ))
+#' }
+#' 
 #' 
 #' @export
 #' 
-useShinyFeedback <- function() {
+useShinyFeedback <- function(
+  feedback = TRUE,
+  toastr = TRUE
+) {
   
-  shiny::addResourcePath("shinyFeedback", system.file("srcjs", package = "shinyFeedback"))
-  shiny::addResourcePath("snackbarCSS", system.file("css", package = "shinyFeedback"))
-  
-  return(
-    tags$div(
-      shiny::singleton(
-        shiny::tags$head(
-          shiny::tags$script(
-            src = file.path("shinyFeedback", "checkFeedback.js")
-          ),
-          shiny::tags$script(
-            src = file.path("shinyFeedback", "snackbar.js")
-          ),
-          shiny::tags$link(
-            type = "text/css", 
-            rel = "stylesheet", 
-            href = file.path("snackbarCSS", "snackbar.css")
-          )
-        )
-      ),
-      # hack to load font-awesome when Shiny loads
-      tags$div(
-        style = "display: none;",
-        shiny::icon("user")
-      )
+  feedback_deps <- NULL
+  if (isTRUE(feedback)) {
+    feedback_deps <- htmltools::tagList(
+      feedbackDependency(),
+      fontAwesomeDependency()
     )
+  }
+  
+  toastr_deps <- NULL
+  if (isTRUE(toastr)) {
+    toastr_deps <- toastrDependency()
+  }
+
+  htmltools::tagList(
+    feedback_deps,
+    toastr_deps
   )
 }
