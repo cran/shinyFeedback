@@ -1,8 +1,5 @@
 (function() {
-  
-  
-  // textInputFeedback functions
-  var textInputFeedback = {
+  var baseInputFeedback = {
     "find": function(inputId) {
       var input = findInput(inputId);
       var label = input.siblings("label");
@@ -14,115 +11,124 @@
         "formGroup": formGroup
       };
     },
-    
     "hasFeedback": function(inputObject) {
       return inputObject.formGroup.hasClass("has-feedback");
     },
-    
     /* show the feedback along side the input
-    *
-    * @param message the `message` object sent from Shiny
-    * 
-    */
+     *
+     * @param message the `message` object sent from Shiny
+     */
     "show": function(inputObject, message) {
-      
-      var obj = inputObject;
-      
-      if (message.color) {
-        obj.label.css("color", message.color);
-        obj.input.css("border", "1px solid " + message.color);  
-      }
-      
-      if (message.text) {
-        $("<div id='" + message.inputId + "-text'><p style='color: " + message.color +"; margin-top: 0px;'>"+ message.text +"</p>").insertAfter(obj.input);
-      }
-      
-      obj.formGroup.addClass("has-feedback");
-      if (message.icon) {
-        $("<span id='" + message.inputId + "-icon' class='form-control-feedback' style='color: " + message.color + ";'>" + message.icon + "</span>").insertAfter(obj.input);
+      this.setFeedback(inputObject, message, true);
+      this.setColor(inputObject, message);
+      this.setText(inputObject, message);
+      this.setIcon(inputObject, message);
+    },
+    /* Hide the feedback
+     *
+     * @param message the `message` object sent from Shiny
+     */
+    "hide": function(inputObject, message) {
+      var msg = {inputId: message.inputId};
+      this.setFeedback(inputObject, msg, false);
+      this.setColor(inputObject, msg);
+      this.setText(inputObject, msg);
+      this.setIcon(inputObject, msg);
+    },
+    /* The setXXX methods below can be individually overridden by inheritors.
+     *
+     * @param inputObject The object returned from this.find()
+     * @param message The message received from Shiny. If message.color,
+     *   message.text, etc. are present, show that feedback; otherwise, hide
+     *   or undo it.
+     */
+    "setFeedback": function(inputObject, message, show) {
+      if (show) {
+        inputObject.formGroup.addClass("has-feedback");
+      } else {
+        inputObject.formGroup.removeClass("has-feedback");
       }
     },
-    
-    "hide": function(inputObject, message) {
-      
-      var obj = inputObject;
-      
-      obj.label.css("color", '');
-      obj.input.removeAttr("style");
-      
-      $("#" + message.inputId + "-icon").remove();
-      
-      inputObject.formGroup.removeClass("has-feedback");
-      
-      $("#" + message.inputId + "-text").remove();
+    "setColor": function(inputObject, message) {
+      if (message.color) {
+        inputObject.label.css("color", message.color);
+        inputObject.input.css("border", "1px solid " + message.color);
+      } else {
+        inputObject.label.css("color", "");
+        inputObject.input.css("border", "");
+      }
+    },
+    "setText": function(inputObject, message) {
+      if (message.text) {
+        $("<div id='" + message.inputId + "-text'><p style='color: " + message.color +"; margin-top: 0px;'>"+ message.text +"</p>").insertAfter(inputObject.input);
+      } else {
+        $("#" + message.inputId + "-text").remove();
+      }
+    },
+    "setIcon": function(inputObject, message) {
+      if (message.icon) {
+        $("<span id='" + message.inputId + "-icon' class='form-control-feedback' style='color: " + message.color + ";'>" + message.icon + "</span>").insertAfter(inputObject.input);
+      } else {
+        $("#" + message.inputId + "-icon").remove();
+      }
     }
-    
   };
   
+  // textInputFeedback functions
+  var textInputFeedback = $.extend({}, baseInputFeedback, {
+  });
   
-  // numericInputFeedback functions
-  var numericInputFeedback = {
-    "find": function(inputId) {
-      var input = findInput(inputId);
-      var label = input.siblings("label");
-      var formGroup = input.parent();
-    
-      return {
-        "input": input,
-        "label": label,
-        "formGroup": formGroup
-      };
-    },
-    
-    "hasFeedback": function(inputObject) {
-      return inputObject.formGroup.hasClass("has-feedback");
-    },
-    
-    /* show the feedback along side the input
-    *
-    * @param message the `message` object sent from Shiny
-    * 
-    */
-    "show": function(inputObject, message) {
+  // textAreaInputFeedback functions
+  var textAreaInputFeedback = $.extend({}, baseInputFeedback, {
+    /* Custom width logic */
+    "setIcon": function(inputObject, message) {
       
       var obj = inputObject;
-      
-      if (message.color) {
-        obj.label.css("color", message.color);
-        obj.input.css("border", "1px solid " + message.color);  
+      if (message.icon) {
+          
+        // Initial fix of formGroup width
+        obj.formGroup.css('width', obj.input[0].offsetWidth);
+        
+        // Fix width of parent element for icon to show correctly
+        $("#" + message.inputId).bind('mouseup', function(inputObject) {
+          
+          // ONLY update width when Feedback icon is visible (otherwise uses different parent element)
+          if ($('#' + inputObject.target.id + '-icon').is(':visible')) {
+            var obj = $(inputObject.target);
+            var parent = $(inputObject.target.offsetParent);
+            
+            obj.css('margin', '0px');
+            parent.css('width', inputObject.target.offsetWidth);
+          }
+          
+        });
+        
+        $("<span id='" + message.inputId + "-icon' class='form-control-feedback' style='color: " + message.color + ";'>" + message.icon + "</span>").insertAfter(obj.input);
+      } else {
+        $("#" + message.inputId + "-icon").remove();
       }
+    }    
+  });
+  
+  // numericInputFeedback functions
+  var numericInputFeedback = $.extend({}, baseInputFeedback, {
+    /* Custom margin */
+   "setIcon": function(inputObject, message) {
       
-      if (message.text) {
-        $("<div id='" + message.inputId + "-text'><p style='color: " + 
-        message.color +"; margin-top: 0px;'>"+ message.text +"</p>").insertAfter(obj.input);
-      }
-      
-      obj.formGroup.addClass("has-feedback");
+      var obj = inputObject;
+            
       if (message.icon) {
         $("<span id='" + message.inputId + "-icon' class='form-control-feedback' style='color: " + 
         message.color + "; margin-right: 20px;'>" + message.icon + "</span>").insertAfter(obj.input);
+      } else {
+        $("#" + message.inputId + "-icon").remove();
       }
-    },
-    
-    "hide": function(inputObject, message) {
-      
-      var obj = inputObject;
-      
-      obj.label.css("color", '');
-      obj.input.removeAttr("style");
-      
-      $("#" + message.inputId + "-icon").remove();
-      
-      inputObject.formGroup.removeClass("has-feedback");
-      
-      $("#" + message.inputId + "-text").remove();
-    }
-    
-  };
+    }    
+  });
   
   
   // selectInputFeedback functions
-  var selectInputFeedback = {
+  var selectInputFeedback = $.extend({}, baseInputFeedback, {
     "find": function(inputId) {
       var input = findInput(inputId);
       
@@ -146,30 +152,12 @@
         "selectize": is_selectize
       };
     },
-    
-    "hasFeedback": function(inputObject) {
-      return inputObject.formGroup.hasClass("has-feedback");
-    },
-    
-    /* show the feedback along side the input
-    *
-    * @param message the `message` object sent from Shiny
-    * 
-    */
-    "show": function(inputObject, message) {
+        
+    /* Custom padding/margin */
+    "setIcon": function(inputObject, message) {
       
       var obj = inputObject;
       
-      if (message.color) {
-        obj.label.css("color", message.color);
-        obj.input.css("border", "1px solid " + message.color);  
-      }
-      
-      if (message.text) {
-        $("<div id='" + message.inputId + "-text'><p style='color: " + message.color +"; margin-top: 0px;'>"+ message.text +"</p>").insertAfter(obj.input);
-      }
-      
-      obj.formGroup.addClass("has-feedback");
       if (message.icon) {
         var margin_right = "10px";
         if (inputObject.selectize === true) {
@@ -181,28 +169,14 @@
         "-icon' class='form-control-feedback' style='color: " + message.color + 
         "; margin-right: " + margin_right + ";'>" + message.icon + 
         "</span>").insertBefore(obj.input);
+      } else {
+        $("#" + message.inputId + "-icon").remove();
       }
-    },
-    
-    "hide": function(inputObject, message) {
-      
-      var obj = inputObject;
-      
-      obj.label.css("color", '');
-      obj.input.removeAttr("style");
-      
-      $("#" + message.inputId + "-icon").remove();
-      
-      inputObject.formGroup.removeClass("has-feedback");
-      
-      $("#" + message.inputId + "-text").remove();
-    }
-    
-  };
-  
+    }    
+  });
 
   // dateInputFeedback functions
-  var dateInputFeedback = {
+  var dateInputFeedback = $.extend({}, baseInputFeedback, {
     "find": function(inputId) {
       var formGroup = findInput(inputId);
       var label = formGroup.children("label");
@@ -213,53 +187,12 @@
         "label": label,
         "formGroup": formGroup
       };
-    },
-    
-    "hasFeedback": function(inputObject) {
-      return inputObject.formGroup.hasClass("has-feedback");
-    },
-    
-    /* show the feedback along side the input
-    *
-    * @param message the `message` object sent from Shiny
-    * 
-    */
-    "show": function(inputObject, message) {
-      
-      var obj = inputObject; 
-      
-      obj.formGroup.addClass("has-feedback");
-      
-      if (message.color) {
-        obj.label.css("color", message.color);
-        obj.input.css("border", "1px solid " + message.color);  
-      }
-      
-      if (message.text) {
-        $("<div id='" + message.inputId + "-text'><p style='color: " + message.color +"; margin-top: 0px;'>"+ message.text +"</p>").insertAfter(obj.input);
-      }
-      
-      if (message.icon) {
-        $("<span id='" + message.inputId + "-icon' class='form-control-feedback' style='color: " + message.color + ";'>" + message.icon + "</span>").insertAfter(obj.input);
-      }
-    },
-    
-    "hide": function(inputObject, message) {
-      
-      var obj = inputObject;
-      
-      inputObject.formGroup.removeClass("has-feedback");
-      obj.label.css("color", '');
-      obj.input.removeAttr("style");
-      $("#" + message.inputId + "-icon").remove();
-      $("#" + message.inputId + "-text").remove();
     }
-    
-  };
+  });
   
   
   // dateRangeInputFeedback functions
-  var dateRangeInputFeedback = {
+  var dateRangeInputFeedback = $.extend({}, baseInputFeedback, {
     "find": function(inputId) {
       var formGroup = findInput(inputId);
       var label = formGroup.children("label");
@@ -270,53 +203,12 @@
         "label": label,
         "formGroup": formGroup
       };
-    },
-    
-    "hasFeedback": function(inputObject) {
-      return inputObject.formGroup.hasClass("has-feedback");
-    },
-    
-    /* show the feedback along side the input
-    *
-    * @param message the `message` object sent from Shiny
-    * 
-    */
-    "show": function(inputObject, message) {
-      
-      var obj = inputObject;
-      
-      obj.formGroup.addClass("has-feedback");
-      
-      if (message.color) {
-        obj.label.css("color", message.color);
-        obj.input.css("border", "1px solid " + message.color);  
-      }
-      
-      if (message.text) {
-        $("<div id='" + message.inputId + "-text'><p style='color: " + message.color +"; margin-top: 0px;'>"+ message.text +"</p>").insertAfter(obj.input);
-      }
-      
-      if (message.icon) {
-        $("<span id='" + message.inputId + "-icon' class='form-control-feedback' style='color: " + message.color + ";'>" + message.icon + "</span>").insertAfter(obj.input);
-      }
-    },
-    
-    "hide": function(inputObject, message) {
-      
-      var obj = inputObject;
-      
-      inputObject.formGroup.removeClass("has-feedback");
-      obj.label.css("color", '');
-      obj.input.removeAttr("style");
-      $("#" + message.inputId + "-icon").remove();
-      $("#" + message.inputId + "-text").remove();
-    }
-    
-  };
+    }    
+  });
   
   
   // airPickerInputFeedback functions
-  var airPickerInputFeedback = {
+  var airPickerInputFeedback = $.extend({}, baseInputFeedback, {
     "find": function(inputId) {
       var input = findInput(inputId);
       var formGroup = input.closest(".form-group");
@@ -331,50 +223,38 @@
       };
     },
     
-    "hasFeedback": function(inputObject) {
-      return inputObject.formGroup.hasClass("has-feedback");
-    },
-    
-    /* show the feedback along side the input
-    *
-    * @param message the `message` object sent from Shiny
-    * 
-    */
-    "show": function(inputObject, message) {
+    "setColor": function(inputObject, message) {
       
       var obj = inputObject ;
-      
-      obj.formGroup.addClass("has-feedback");
-
       if (message.color) {
         obj.label.css("color", message.color);
         obj.inputDiv.css("border", "1px solid " + message.color);  
-      }
-      
-      if (message.text) {
-        $("<div id='" + message.inputId + "-text'><p style='color: " + message.color +"; margin-top: 0px;'>"+ message.text +"</p>").insertAfter(obj.inputDiv);
-      }
-      
-      if (message.icon) {
-        $("<span id='" + message.inputId + "-icon' class='form-control-feedback' style='color: " + message.color + "; margin-right: 40px;'>" + message.icon + "</span>").insertAfter(obj.input);
+      } else {
+        obj.label.css("color", "");
+        obj.inputDiv.css("border", "");
       }
     },
-    
-    "hide": function(inputObject, message) {
-      
-      var obj = inputObject;
-      
-      inputObject.formGroup.removeClass("has-feedback");
-      obj.label.css("color", "");
-      obj.inputDiv.removeAttr("style");
-      $("#" + message.inputId + "-icon").remove();
-      $("#" + message.inputId + "-text").remove();
+    /* Puts the message after inputDiv, not input */
+    "setText": function(inputObject, message) {
+      if (message.text) {
+        $("<div id='" + message.inputId + "-text'><p style='color: " + message.color +"; margin-top: 0px;'>"+ message.text +"</p>").insertAfter(inputObject.inputDiv);
+      } else {
+        $("#" + message.inputId + "-text").remove();
+      }
+    },
+    /* Custom right margin */
+    "setIcon": function(inputObject, message) {
+      if (message.icon) {
+        $("<span id='" + message.inputId + "-icon' class='form-control-feedback' style='color: " + message.color + "; margin-right: 40px;'>" + message.icon + "</span>").insertAfter(obj.input);
+      } else {
+        $("#" + message.inputId + "-icon").remove();
+      }
     }
-  };
+  });
   
   
   // pickerInputFeedback functions
-  var pickerInputFeedback = {
+  var pickerInputFeedback = $.extend({}, baseInputFeedback, {
     "find": function(inputId) {
       var input = findInput(inputId).parent();
       var label = input.siblings("label");
@@ -387,29 +267,8 @@
       };
     },
     
-    "hasFeedback": function(inputObject) {
-      return inputObject.formGroup.hasClass("has-feedback");
-    },
-    
-    /* show the feedback along side the input
-    *
-    * @param message the `message` object sent from Shiny
-    * 
-    */
-    "show": function(inputObject, message) {
-      
-      var obj = inputObject; 
-    
-      if (message.color) {
-        obj.label.css("color", message.color);
-        obj.input.css("border", "1px solid " + message.color);  
-      }
-      
-      if (message.text) {
-        $("<div id='" + message.inputId + "-text'><p style='color: " + message.color +"; margin-top: 0px;'>"+ message.text +"</p>").insertAfter(obj.input);
-      }
-      
-      obj.formGroup.addClass("has-feedback");
+    /* Icon has custom right margin */
+    "setIcon": function(inputObject, message) {
       if (message.icon) {
         
         //obj.input.parent().css("padding-right", 0);
@@ -417,7 +276,53 @@
         $("<span id='" + message.inputId + 
         "-icon' class='form-control-feedback' style='color: " + message.color + 
         "; margin-right: 15px;'>" + message.icon + 
-        "</span>").insertBefore(obj.input);
+        "</span>").insertBefore(inputObject.input);
+      } else {
+        $("#" + message.inputId + "-icon").remove();
+      }
+    }
+  });
+  
+  
+  // fileInputFeedback functions
+  var fileInputFeedback = $.extend({}, baseInputFeedback, {
+    "find": function(inputId) {
+      
+      var formGroup = findInput(inputId);
+      var label = formGroup.parent().parent().parent().siblings('label');
+      var input = formGroup.parent().parent().parent('div');
+      var progress = input.siblings('div.progress').children('div.progress-bar');
+    
+      return {
+        "input": input,
+        "label": label,
+        "formGroup": formGroup,
+        "progress": progress
+      };
+    },
+
+    // fileInputFeedback's structure is different enough from baseInputFeedback
+    // that we override the show/hide methods instead of overriding individual
+    // setXXX() methods.
+    
+    "show": function(inputObject, message) {
+      
+      var obj = inputObject;
+      
+      obj.formGroup.addClass("has-feedback");
+      
+      if (message.color) {
+        obj.label.css("color", message.color);
+        obj.input.css("border", "1px solid " + message.color);
+        obj.progress.css("background-color", message.color);
+      }
+
+      if (message.text) {
+        obj.progress.html(message.text);
+      }
+
+      if (message.icon) {
+        $("<span id='" + message.inputId + "-icon' class='form-control-feedback' style='color: " + message.color + ";'>" + message.icon + "</span>").insertAfter(obj.input.children('input'));
       }
     },
     
@@ -425,17 +330,14 @@
       
       var obj = inputObject;
       
-      obj.label.css("color", '');
-      obj.input.removeAttr("style");
-      
-      $("#" + message.inputId + "-icon").remove();
-      
       inputObject.formGroup.removeClass("has-feedback");
-      
-      $("#" + message.inputId + "-text").remove();
+      obj.label.css("color", "");
+      obj.input.css("border", "");
+      obj.progress.css("background-color", "#337ab7");
+      obj.progress.html("Upload complete");
+      $("#" + message.inputId + "-icon").remove();
     }
-    
-  };
+  });
   
   
   // all shiny input bindings that are supported by shinyFeedback
@@ -443,13 +345,14 @@
     {name: "shiny.selectInput", feedback: selectInputFeedback},
     {name: "shiny.dateInput", feedback: dateInputFeedback},
     {name: "shiny.dateRangeInput", feedback: dateRangeInputFeedback},
-    {name: "shiny.AirPickerInput", feedback: airPickerInputFeedback},
+    {name: "shinyWidgets.AirPickerInput", feedback: airPickerInputFeedback},
     {name: "shiny.sliderInput", feedback: textInputFeedback},
     {name: "shiny.numberInput", feedback: numericInputFeedback},
     {name: "shiny.passwordInput", feedback: textInputFeedback},
-    {name: "shiny.textareaInput", feedback: textInputFeedback},
+    {name: "shiny.textareaInput", feedback: textAreaInputFeedback},
     {name: "shiny.textInput", feedback: textInputFeedback},
-    {name: "shiny.pickerInput", feedback: pickerInputFeedback}
+    {name: "shiny.pickerInput", feedback: pickerInputFeedback},
+    {name: "shiny.fileInputBinding", feedback: fileInputFeedback}
   ];
   
   // return the element containing the shiny inputId
@@ -539,11 +442,8 @@
       
       if (message.show === true) {
         if (feedbackFun.hasFeedback(theInput) === false) {
-          feedbackFun.show(theInput, message)
-        } else {
-          feedbackFun.hide(theInput, message)
-          feedbackFun.show(theInput, message)
-        }  
+          feedbackFun.show(theInput, message)  
+        } 
       } else {
         feedbackFun.hide(theInput, message)
       }

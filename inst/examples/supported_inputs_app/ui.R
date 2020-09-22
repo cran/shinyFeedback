@@ -26,7 +26,8 @@ fluidPage(
     textAreaInput(
       inputId = "myTextAreaInput",
       label = "Success if > 10 chars",
-      value = "This is a successful text area input value"
+      value = "This is a successful text area input value",
+      height = "200px"
     ),
     
     h2("dateRangeInput"),
@@ -78,6 +79,18 @@ fluidPage(
       class = "btn btn-danger",
       loadingSpinner = "cog",
       loadingLabel = "Cancelling..."
+    ),
+    br(),
+    h2("Remove Toast"),
+    actionButton(
+      "removeToast",
+      "Remove Toast",
+      icon = icon("trash-o")
+    ),
+    actionButton(
+      "removeToastASAP",
+      "Remove Toast ASAP",
+      icon = icon("trash-o")
     )
     
   ),
@@ -105,7 +118,19 @@ fluidPage(
     
     h2("Shiny Module Example"),
     
-    eg_module_ui("eg_module")
+    eg_module_ui("eg_module"),
+    
+    h2("fileInput"),
+    
+    fileInput(
+      "myFileInput",
+      label = "File Input"
+    ),
+    
+    actionButton(
+      "removeFileFeedback",
+      "Remove File Feeback"
+    )
   
   )
   

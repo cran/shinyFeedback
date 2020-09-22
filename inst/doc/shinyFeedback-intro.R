@@ -74,7 +74,7 @@
 #  numberInput <- function(id) {
 #    ns <- NS(id)
 #    tagList(
-#      useShinyFeedback(),  # inclusion here is ideal; b/c inside module
+#      useShinyFeedback(),
 #      numericInput(
 #        ns("warningInput"),
 #        "Warn if Negative",

@@ -119,6 +119,13 @@ function(input, output, session) {
   })
   
   
+  observeEvent(input$removeToast, {
+    hideToast()
+  })
+  observeEvent(input$removeToastASAP, {
+    hideToast(animate = FALSE)
+  })
+  
   
   observeEvent(input$mySelectizeInput, {
     
@@ -150,6 +157,20 @@ function(input, output, session) {
     
   })
   
+  observeEvent(input$myFileInput, {
+    
+    showFeedbackSuccess(
+      inputId = "myFileInput",
+      text = "I love files!"
+    )
+    
+  })
+  
+  observeEvent(input$removeFileFeedback, {
+    
+    hideFeedback("myFileInput")
+    
+  })
   
   callModule(
     eg_module,

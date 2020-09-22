@@ -11,21 +11,22 @@ vignette: >
 
 ## Functionality
 
-The `shinyFeedback` package displays user friendly messages that appear along side `shiny` inputs.  e.g.
+The `shinyFeedback` package displays user friendly messages that appear alongside `shiny` inputs.  e.g.
 
-![](feedback-screenshot.png)
+![](feedback_screenshot.png)
 
-`shinyFeedback` currently works with the following `shiny::*Input()` functions:
+`shinyFeedback` currently works with the following `shiny` and `shinyWidgets` inputs:
 
 - `shiny::dateInput()`
 - `shiny::dateRangeInput()`
+- `shiny::fileInput()`
 - `shiny::numericInput()`
 - `shiny::passwordInput()`
 - `shiny::selectInput()`
 - `shiny::sliderInput()`
 - `shiny::textAreaInput()`
 - `shiny::textInput()`
-- `shinyWidgets::airDatePickerInput()`
+- `shinyWidgets::airDatepickerInput()`
 - `shinyWidgets::pickerInput()`
 
 
@@ -67,7 +68,7 @@ server <- function(input, output, session) {
 shinyApp(ui, server)
 ```
 
-The above app has one `textInput()` input in the UI.  In the server function, we write the code to conditionally display a feedback message. If the text input has more than 3 characters, the feeback message is displayed.
+The above app has one `textInput()` input in the UI.  In the server function, we write the code to conditionally display a feedback message. If the text input has more than 3 characters, the feedback message is displayed.
 
 # `feedback()`
 
@@ -115,7 +116,7 @@ shinyApp(ui, server)
 
 ## Usage Inside Shiny Modules
 
-shinyFeedback works inside [shiny modules](https://shiny.rstudio.com/articles/modules.html).
+`shinyFeedback` works inside [shiny modules](https://shiny.rstudio.com/articles/modules.html).
 
 As for all modules, input and output IDs in the module UI code must be wrapped in `shiny::ns()` calls.
 Inside your module server code, you need *not* wrap input or output IDs inside `shiny::ns()`; shinyFeedback will automatically prepend the namespace of your current module.
@@ -129,7 +130,7 @@ library(shinyFeedback)
 numberInput <- function(id) {
   ns <- NS(id)
   tagList(
-    useShinyFeedback(),  # inclusion here is ideal; b/c inside module
+    useShinyFeedback(),
     numericInput(
       ns("warningInput"),
       "Warn if Negative",
