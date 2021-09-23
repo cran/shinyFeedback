@@ -1,3 +1,11 @@
+# shinyFeedback 0.4.0
+
+- Using {fontawesome} package rather than shiny to bring in icons.  Resolves breaking change introduced
+in {shiny} 0.1.7 where {shiny} switched from vendoring the icons to using the {fontawesome} package.
+- Added "subtitle" argument to `valueMoxModule()` to allow for dynamically setting the subtitle.
+- Updated pickerInput input binding name to "shinyWidgets.pickerInput" to reflect change in `shinyWidgets`.
+- Fixed `resetLoadingButton()` to work if `loadingButton()` does not exist in the initial app UI (#50) - Thanks @matthijsvanderloos!
+
 # shinyFeedback 0.3.0
 
 - updated ".options" argument to showToast to use the `shinyFeedback` default options for

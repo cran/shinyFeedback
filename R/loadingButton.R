@@ -16,6 +16,7 @@
 #'
 #' @importFrom htmltools span tags singleton
 #' @importFrom jsonlite toJSON
+#' @importFrom fontawesome fa_html_dependency
 #'
 loadingButton <- function(
   inputId,
@@ -59,10 +60,10 @@ loadingButton <- function(
     ),
     tags$head(
       htmltools::singleton(
-        fontAwesomeDependency() 
+        fontawesome::fa_html_dependency()
       ),
       htmltools::singleton(
-        tags$script(src = "shinyfeedback/js/loadingbutton.js"),
+        tags$script(src = "shinyfeedback/js/loadingbutton.js?version=1"),
       ),
       tags$script(sprintf(
         "loadingButtons.create('%s', %s)",
